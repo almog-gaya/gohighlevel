@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Pipeline, PipelineStage, Opportunity } from '@/lib/api';
+import { useEffect, useState, useCallback } from 'react';
+import { Pipeline, Opportunity } from '@/lib/api';
 import { Installation } from '@/lib/firebase';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import type { DropResult } from 'react-beautiful-dnd';
 
 interface PipelineViewProps {
   installation: Installation;
@@ -15,17 +16,7 @@ export default function PipelineView({ installation, onOpportunityMove }: Pipeli
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadPipelines();
-  }, [installation]);
-
-  useEffect(() => {
-    if (selectedPipeline) {
-      loadOpportunities(selectedPipeline.id);
-    }
-  }, [selectedPipeline]);
-
-  const loadPipelines = async () => {
+  const loadPipelines = useCallback(async () => {
     try {
       const response = await fetch('/api/pipelines', {
         headers: {
@@ -49,9 +40,9 @@ export default function PipelineView({ installation, onOpportunityMove }: Pipeli
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [installation]);
 
-  const loadOpportunities = async (pipelineId: string) => {
+  const loadOpportunities = useCallback(async (pipelineId: string) => {
     try {
       setIsLoading(true);
       const response = await fetch(`/api/pipelines/${pipelineId}/opportunities`, {
@@ -72,9 +63,19 @@ export default function PipelineView({ installation, onOpportunityMove }: Pipeli
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [installation]);
 
-  const handleDragEnd = async (result: any) => {
+  useEffect(() => {
+    loadPipelines();
+  }, [loadPipelines]);
+
+  useEffect(() => {
+    if (selectedPipeline) {
+      loadOpportunities(selectedPipeline.id);
+    }
+  }, [selectedPipeline, loadOpportunities]);
+
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination || !selectedPipeline) return;
 
     const opportunityId = result.draggableId;
@@ -133,7 +134,10 @@ export default function PipelineView({ installation, onOpportunityMove }: Pipeli
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-red-800">{error}</h3>
+            <h3 className="text-sm font-medium text-red-800">Error loading data</h3>
+            <div className="mt-2 text-sm text-red-700">
+              <p>{error}</p>
+            </div>
           </div>
         </div>
       </div>

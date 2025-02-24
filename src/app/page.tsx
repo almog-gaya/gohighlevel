@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { mockPipelines, mockOpportunities } from '@/lib/mockData';
 import type { Opportunity } from '@/lib/api';
 import dynamic from 'next/dynamic';
-import type { DropResult } from 'react-beautiful-dnd';
-import { useRouter } from 'next/navigation';
+import type { DropResult, DraggableProvided, DraggableStateSnapshot, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 
 // Dynamically import react-beautiful-dnd with no SSR
 const DragDropContext = dynamic(
@@ -22,17 +21,11 @@ const Draggable = dynamic(
 );
 
 export default function Home() {
-  const router = useRouter();
   const [selectedPipeline, setSelectedPipeline] = useState(mockPipelines[0]);
   const [opportunities, setOpportunities] = useState(mockOpportunities);
-  const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleAuthClick = async () => {
     try {
@@ -73,8 +66,8 @@ export default function Home() {
   };
 
   const renderDraggableContent = (
-    provided: any,
-    snapshot: any,
+    provided: DraggableProvided,
+    snapshot: DraggableStateSnapshot,
     opportunity: Opportunity
   ) => (
     <div
@@ -99,9 +92,9 @@ export default function Home() {
   );
 
   const renderDroppableContent = (
-    provided: any,
-    snapshot: any,
-    stage: any,
+    provided: DroppableProvided,
+    snapshot: DroppableStateSnapshot,
+    stage: { id: string; name: string },
     opportunities: Opportunity[]
   ) => (
     <div

@@ -1,4 +1,4 @@
-import { Opportunity, Pipeline, PipelineStage } from './api';
+import { Opportunity, Pipeline } from './api';
 
 export const mockPipelines: Pipeline[] = [
   {

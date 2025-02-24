@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getInstallation } from '@/lib/firebase';
 
-type RouteParams = {
+type Props = {
   params: {
     locationId: string;
   };
 };
 
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const { locationId } = params;
+export async function GET(request: NextRequest, context: Props) {
+  const { locationId } = context.params;
   const searchParams = request.nextUrl.searchParams;
   const companyId = searchParams.get('companyId');
 
