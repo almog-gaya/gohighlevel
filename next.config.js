@@ -8,6 +8,24 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Disable Vercel's default authentication
+  experimental: {
+    isExperimentalCompile: true,
+  },
+  // Allow public access
+  headers: async () => {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'x-vercel-protection',
+            value: 'none',
+          },
+        ],
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig 
