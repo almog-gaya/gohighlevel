@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getInstallation } from '@/lib/firebase';
 
+type RouteParams = {
+  params: {
+    locationId: string;
+  };
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { locationId: string } }
+  { params }: RouteParams
 ) {
   const { locationId } = params;
   const searchParams = request.nextUrl.searchParams;
