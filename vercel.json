@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_GHL_CLIENT_ID": "@next_public_ghl_client_id",
+    "GHL_CLIENT_SECRET": "@ghl_client_secret",
+    "NEXT_PUBLIC_GHL_REDIRECT_URI": "@next_public_ghl_redirect_uri"
+  }
+} 
