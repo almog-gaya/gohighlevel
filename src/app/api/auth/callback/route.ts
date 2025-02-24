@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { saveInstallation } from '@/lib/firebase';
 
 export async function GET(request: NextRequest) {
   try {
@@ -6,6 +7,8 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
     const error = searchParams.get('error');
     const state = searchParams.get('state');
+    const locationId = searchParams.get('locationId');
+    const companyId = searchParams.get('companyId');
     const storedState = request.cookies.get('oauth_state')?.value;
 
     // Verify state to prevent CSRF
@@ -32,9 +35,11 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('Received auth code:', code);
+    console.log('Location ID:', locationId);
+    console.log('Company ID:', companyId);
 
-    // Exchange the authorization code for tokens using the sandbox endpoint
-    const tokenResponse = await fetch('https://api.sandbox.gohighlevel.com/oauth/token', {
+    // Exchange the authorization code for tokens using the marketplace endpoint
+    const tokenResponse = await fetch('https://services.leadconnectorhq.com/oauth/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -46,7 +51,7 @@ export async function GET(request: NextRequest) {
         grant_type: 'authorization_code',
         code: code,
         redirect_uri: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI,
-        user_type: 'location' // As shown in the video
+        user_type: 'Location' // Case sensitive
       }),
     });
 
@@ -62,13 +67,28 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenResponse.json();
     console.log('Token exchange successful');
 
+    // Save the installation data
+    if (locationId && companyId) {
+      await saveInstallation({
+        locationId,
+        companyId,
+        accessToken: tokenData.access_token,
+        refreshToken: tokenData.refresh_token,
+        expiresIn: tokenData.expires_in,
+        tokenType: tokenData.token_type,
+        installedAt: new Date().toISOString(),
+        tokenExpiresAt: new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+      });
+    }
+
     // Create the response with tokens
     const response = NextResponse.json({
       access_token: tokenData.access_token,
       refresh_token: tokenData.refresh_token,
       expires_in: tokenData.expires_in,
       token_type: tokenData.token_type,
-      locationId: tokenData.locationId
+      locationId,
+      companyId
     });
 
     // Set secure cookies for token storage
@@ -89,10 +109,13 @@ export async function GET(request: NextRequest) {
     // Clear the oauth_state cookie
     response.cookies.delete('oauth_state');
 
-    // Redirect to the dashboard with location ID
+    // Redirect to the dashboard with location ID and company ID
     const redirectUrl = new URL('/dashboard', request.url);
-    if (tokenData.locationId) {
-      redirectUrl.searchParams.set('locationId', tokenData.locationId);
+    if (locationId) {
+      redirectUrl.searchParams.set('locationId', locationId);
+    }
+    if (companyId) {
+      redirectUrl.searchParams.set('companyId', companyId);
     }
 
     return NextResponse.redirect(redirectUrl);

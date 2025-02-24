@@ -32,9 +32,21 @@ export default function Home() {
       setIsLoading(true);
       setError(null);
       
-      // Instead of OAuth, directly show the dashboard
-      setShowDashboard(true);
-      setIsLoading(false);
+      // Use the actual OAuth flow
+      const response = await fetch('/api/auth');
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      if (data.authorizationUrl) {
+        // Redirect to GoHighLevel OAuth page
+        window.location.href = data.authorizationUrl;
+        return;
+      }
+      
+      throw new Error('No authorization URL received');
     } catch (error) {
       console.error('Error:', error);
       setError(error instanceof Error ? error.message : 'An error occurred');

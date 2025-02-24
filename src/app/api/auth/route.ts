@@ -5,7 +5,7 @@ export async function GET() {
     const clientId = process.env.NEXT_PUBLIC_GHL_CLIENT_ID;
     const redirectUri = process.env.NEXT_PUBLIC_GHL_REDIRECT_URI;
     // Use the sandbox OAuth endpoint
-    const authUrl = 'https://app.sandbox.gohighlevel.com/oauth/authorize';
+    const authUrl = 'https://marketplace.gohighlevel.com/oauth/chooselocation';
 
     if (!clientId || !redirectUri) {
       return NextResponse.json(
