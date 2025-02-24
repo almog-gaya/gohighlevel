@@ -6,7 +6,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { pipelineId: string } }
 ) {
-  const { pipelineId } = params;
+  const pipelineId = params.pipelineId;
   const locationId = request.headers.get('locationId');
   const companyId = request.headers.get('companyId');
 

@@ -6,7 +6,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { opportunityId: string } }
 ) {
-  const { opportunityId } = params;
+  const opportunityId = params.opportunityId;
   const locationId = request.headers.get('locationId');
   const companyId = request.headers.get('companyId');
 

@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getInstallation } from '@/lib/firebase';
 
-type Props = {
-  params: {
-    locationId: string;
-  };
-};
-
-export async function GET(request: NextRequest, context: Props) {
-  const { locationId } = context.params;
-  const searchParams = request.nextUrl.searchParams;
-  const companyId = searchParams.get('companyId');
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { locationId: string } }
+) {
+  const locationId = params.locationId;
+  const companyId = request.nextUrl.searchParams.get('companyId');
 
   if (!locationId || !companyId) {
     return NextResponse.json(
@@ -29,10 +25,9 @@ export async function GET(request: NextRequest, context: Props) {
       );
     }
 
-    // Return only the necessary data for the frontend
     return NextResponse.json({
       id: locationId,
-      name: 'Location Name', // TODO: Fetch from GHL API
+      name: 'Location Name',
       companyId: installation.companyId,
       settings: installation.settings || {},
       installedAt: installation.installedAt

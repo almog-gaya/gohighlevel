@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getInstallation, Installation } from '@/lib/firebase';
 import PipelineView from '@/components/PipelineView';
 
-export default function Dashboard() {
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [installation, setInstallation] = useState<Installation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,5 +90,17 @@ export default function Dashboard() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 } 
